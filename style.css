@@ -1,0 +1,176 @@
+/* CivicTrack - Stable Baseline Styles */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.container {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.container > * + * {
+  margin-top: 1.5rem;
+}
+
+.card {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.btn {
+  border-radius: 0.375rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.status-badge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+}
+
+.status-badge.status-Pending {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.status-badge.status-Processing {
+  background-color: #0dcaf0;
+  color: #000;
+}
+
+.status-badge.status-Completed {
+  background-color: #198754;
+  color: #fff;
+}
+
+.status-badge.status-Rejected {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.form-control,
+.form-select {
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+#map-preview {
+  height: 200px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+#map-preview.bg-success-subtle {
+  background-color: #d1e7dd !important;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+
+.admin-table {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.table th {
+  background-color: #0d6efd;
+  color: #b3a3a3;
+  border: none;
+}
+
+/* Basic responsive */
+@media (max-width: 768px) {
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .row > [class*="col-"] {
+    margin-bottom: 1rem;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* First card (Report Issue) - Green highlight */
+.row.g-4 > .col-md-4:first-of-type .card {
+  background-color: #198754 !important;
+  color: #ffffff !important;
+}
+
+.row.g-4 > .col-md-4:first-of-type .card .card-body {
+  color: #eedfdf !important;
+}
+
+.row.g-4 > .col-md-4:first-of-type .card i {
+  color: #ffffff !important;
+  filter: brightness(1.1);
+}
+
+.row.g-4 > .col-md-4:first-of-type .card .card-title,
+.row.g-4 > .col-md-4:first-of-type .card p {
+  color: #ffffff !important;
+}
+
+.row.g-4 > .col-md-4:first-of-type .card .btn {
+  background-color: #ffffff !important;
+  color: #198754 !important;
+  border-color: #ffffff !important;
+}
+
+.row.g-4 > .col-md-4:first-of-type .card .btn:hover {
+  background-color: #f8f9fa !important;
+  color: #198754 !important;
+  border-color: #f8f9fa !important;
+}
+
+/* .report-card {
+  background-color: #198754;
+  color: #ffffff;
+}
+
+.report-card h3,
+.report-card p {
+  color: #ffffff;
+} */

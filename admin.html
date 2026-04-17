@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - CivicTrack</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">CivicTrack Admin</a>
+      <div class="navbar-nav ms-auto">
+        <a href="issues.html" class="nav-link">Public View</a>
+        <button id="logoutBtn" class="btn btn-outline-light ms-2">
+          <i class="bi bi-box-arrow-right me-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Unauthorized -->
+  <div id="unauthorized" class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <i class="bi bi-shield-exclamation display-1 text-danger mb-4"></i>
+        <h2 class="fw-bold text-danger mb-3">Access Denied</h2>
+        <p class="lead text-muted">Please login as admin first</p>
+        <a href="admin-login.html" class="btn btn-primary btn-lg">Go to Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard (hidden initially) -->
+  <div id="dashboard" class="container-fluid py-4 d-none">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="fw-bold mb-0">
+            <i class="bi bi-speedometer2 me-2 text-primary"></i>
+            Admin Dashboard
+            <span id="totalCount" class="badge bg-primary ms-2">0</span>
+          </h2>
+          <div>
+            <span class="badge bg-success fs-6 me-2" id="pendingCount">0</span>
+            <span class="badge bg-info fs-6 me-2" id="processingCount">0</span>
+            <span class="badge bg-success fs-6" id="completedCount">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="admin-table card shadow-lg">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Location</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-5 d-block mb-3"></i>No issues found
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="utils.js"></script>
+  <script>
+    const utils = window.CivicTrackUtils;
+    let allReports = [];
+
+    // Check auth - show unauthorized if not logged in
+    if (!utils.isAdmin()) {
+      document.getElementById('unauthorized').classList.remove('d-none');
+    } else {
+      document.getElementById('dashboard').classList.remove('d-none');
+      initDashboard();
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      utils.adminLogout();
+      window.location.href = 'admin-login.html';
+    });
+
+    function initDashboard() {
+      refreshData();
+      utils.initStorageSync(refreshData);
+    }
+
+    function refreshData() {
+      allReports = utils.getReports();
+      renderTable();
+      updateStats();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('adminTableBody');
+      
+      if (allReports.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox display-5 d-block mb-3"></i>No issues found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = allReports.map((report, index) => `
+        <tr>
+          <td>
+            ${report.images[0] ? 
+              `<img src="${report.images[0]}" class="rounded shadow-sm" style="width:60px;height:60px;object-fit:cover;" alt="Issue">` : 
+              '<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:60px;height:60px"><i class="bi bi-camera text-muted"></i></div>'
+            }
+          </td>
+          <td>
+            <strong class="text-dark">${report.category}</strong>
+          </td>
+          <td class="text-truncate" style="max-width: 200px;" title="${report.description}">
+            ${report.description}
+          </td>
+          <td>
+            <i class="bi bi-geo-alt me-1 text-muted"></i>
+            <span title="${report.locationType ? `Type: ${report.locationType}${report.placeName ? '\\nPlace: ' + report.placeName : ''}${report.district ? '\\nDistrict: ' + report.district : ''}${report.state ? '\\nState: ' + report.state : ''}` : ''}">
+              ${report.locationLabel}
+              ${report.locationType ? ` <small class="text-muted">(${report.locationType[0].toUpperCase()})</small>` : ''}
+            </span>
+          </td>
+          <td>
+            <select class="form-select form-select-sm priority-select" data-id="${report.id}" onchange="updatePriority(this)">
+              <option ${report.priority === 'High' ? 'selected' : ''} value="High">High</option>
+              <option ${report.priority === 'Medium' ? 'selected' : ''} value="Medium">Medium</option>
+              <option ${report.priority === 'Low' ? 'selected' : ''} value="Low">Low</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-select form-select-sm status-select" data-id="${report.id}" onchange="updateStatus(this)">
+              <option ${report.status === 'Pending' ? 'selected' : ''} value="Pending">Pending</option>
+              <option ${report.status === 'Processing' ? 'selected' : ''} value="Processing">Processing</option>
+              <option ${report.status === 'Completed' ? 'selected' : ''} value="Completed">Completed</option>
+              <option ${report.status === 'Rejected' ? 'selected' : ''} value="Rejected">Rejected</option>
+            </select>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-danger btn-action" onclick="deleteReport('${report.id}')" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateStats() {
+      const pending = allReports.filter(r => r.status === 'Pending').length;
+      const processing = allReports.filter(r => r.status === 'Processing').length;
+      const completed = allReports.filter(r => r.status === 'Completed').length;
+      
+      document.getElementById('totalCount').textContent = allReports.length;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('processingCount').textContent = processing;
+      document.getElementById('completedCount').textContent = completed;
+    }
+
+    function updateStatus(select) {
+      const id = select.dataset.id;
+      const newStatus = select.value;
+      if (utils.updateReportStatus(id, newStatus)) {
+        refreshData(); // Refresh to update everywhere
+      }
+    }
+
+    function updatePriority(select) {
+      const id = select.dataset.id;
+      const newPriority = select.value;
+      if (utils.updateReportPriority(id, newPriority)) {
+        refreshData();
+      }
+    }
+
+    function deleteReport(id) {
+      if (confirm('Delete this report permanently?')) {
+        if (utils.deleteReport(id)) {
+          refreshData();
+        }
+      }
+    }
+
+    // Global functions for onclick
+    window.updateStatus = updateStatus;
+    window.updatePriority = updatePriority;
+    window.deleteReport = deleteReport;
+  </script>
+</body>
+</html>
+
